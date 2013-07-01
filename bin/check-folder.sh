@@ -40,6 +40,10 @@ TITLE="<i>Check for updated files</i>"
 # message body
 BODY_NO_NEWER_FILE="No updates in <i>${CHECKED_DIR_NAME}</i> folder."
 
+# options variable 
+notify_all_users=yes	# notify to all users if ran as root!
+notify_no_upd=no	# notify user if no update occurs
+
 function newerfile() 
 {
   files=(${1}/*)
@@ -51,6 +55,33 @@ function newerfile()
   done
   echo $(basename ${newest})
 }
+
+function help()
+{
+cat <<End-Of-Help
+Usage: `basename $0` [-ahu]
+  Check a folder for new files and notify this to the user via notifiy-send. 
+  If ran as root it will notify every user logged in (useful as cron task).
+   a	notify even if no new document are found
+   h	this help
+   u	notify only the user running the script (for root so that other users do not get bored) 
+End-Of-Help
+}
+
+# option parsing 
+while getopts "ahu" opzione 
+  do case ${opzione} in 
+    a ) notify_no_upd=yes
+    ;;
+    h )  help ; exit 0
+    ;;
+    u ) notify_all_users=no
+    ;; 
+   * ) help ; exit 1
+   ;; 
+  esac 
+done
+shift $(($OPTIND - 1)) 
 
 if [ ! -d ${CONFIG_DIR} ]; then 
   mkdir -p ${CONFIG_DIR}
@@ -88,12 +119,20 @@ else
 	urge=""
 	;;
   esac
-fi
-  if [ ! -z "${urge}" ]; then
-    notifier="notify-send -a \"${APP_NAME}\" -u ${urge} -i document-new -c transfer \"${TITLE}\" \"<b>${x}</b> now available in folder <i>${CHECKED_DIR_NAME}</i>.\""
-  else
+
+if [ ! -z "${urge}" ]; then
+  notifier="notify-send -a \"${APP_NAME}\" -u ${urge} -i document-new -c transfer \"${TITLE}\" \"<b>${x}</b> now available in folder <i>${CHECKED_DIR_NAME}</i>.\""
+else
+  if [ ${notify_no_upd} = "yes" ]; then
     notifier="notify-send -a \"${APP_NAME}\" -u low -i document-new -c transfer -t 4500 \"${TITLE}\" \"${BODY_NO_NEWER_FILE}\""
+  else
+    notifier='echo -n'
   fi
-for i in $(users | tr " " "\n" | sort | uniq) ;  do
-  su ${i} -c "DISPLAY=\":0.0\" ${notifier}"
-done
+fi
+if [ ${notify_all_users} = "yes" -a "${EUID}" = "0" ]; then
+  for i in $(users | tr " " "\n" | sort | uniq) ;  do
+    su ${i} -c "DISPLAY=\":0.0\" ${notifier}"
+  done
+else  
+  eval ${notifier}
+fi
