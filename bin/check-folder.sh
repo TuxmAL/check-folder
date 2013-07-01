@@ -38,7 +38,7 @@ CONFIG_OWNER=tuxmal
 # message title
 TITLE="<i>Check for updated files</i>"
 # message body
-BODY_NO_NEWER_FILE="No updates in <i>${CHECKED_DIR_NAME}</i>"
+BODY_NO_NEWER_FILE="No updates in <i>${CHECKED_DIR_NAME}</i> folder."
 
 function newerfile() 
 {
@@ -90,9 +90,9 @@ else
   esac
 fi
   if [ ! -z "${urge}" ]; then
-    notifier="notify-send -a \"${APP_NAME}\" -u ${urge} -i application-pdf -c transfer \"${TITLE}\" \"Now in <i>${CHECKED_DIR_NAME}</i> folder <b>${x}</b> is available.\""
+    notifier="notify-send -a \"${APP_NAME}\" -u ${urge} -i document-new -c transfer \"${TITLE}\" \"<b>${x}</b> now available in folder <i>${CHECKED_DIR_NAME}</i>.\""
   else
-    notifier="notify-send -a \\\"${APP_NAME}\\\" -u low -i application-pdf -c transfer -t 4500 \"${TITLE}\" \"${BODY_NO_NEWER_FILE}\""
+    notifier="notify-send -a \"${APP_NAME}\" -u low -i document-new -c transfer -t 4500 \"${TITLE}\" \"${BODY_NO_NEWER_FILE}\""
   fi
 for i in $(users | tr " " "\n" | sort | uniq) ;  do
   su ${i} -c "DISPLAY=\":0.0\" ${notifier}"
