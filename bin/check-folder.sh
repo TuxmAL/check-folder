@@ -19,7 +19,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # application name for notification.
-APP_NAME=$( basename ${0} .sh )
+APP_NAME="Check folder"
 
 # directory to check
 CHECKED_DIR=/home/tuxmal/shared
@@ -27,7 +27,7 @@ CHECKED_DIR=/home/tuxmal/shared
 CHECKED_DIR_NAME=$( basename ${CHECKED_DIR}  )
 
 # configuration directory, where are stored data needed for last update
-CONFIG_DIR=/home/tuxmal/.${APP_NAME}
+CONFIG_DIR=/home/tuxmal/.$( basename ${0} .sh )
 # last file found into the checked directory
 LAST_FILE=last_file
 # last change time for the last file found into the checked directory
