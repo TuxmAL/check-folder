@@ -53,7 +53,7 @@ function newerfile()
       newest=$f
     fi
   done
-  echo $(basename ${newest})
+  echo $(basename "${newest}")
 }
 
 function help()
